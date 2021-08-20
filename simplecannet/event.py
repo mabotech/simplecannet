@@ -1,11 +1,19 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding=utf-8
+'''
+Author: HeathKang
+Date: 2017-12-22 16:38:59
+LastEditors: Zhang Hengye
+LastEditTime: 2021-08-20 14:18:58
+'''
 import struct
 
 from simplecannet.message import Message
 
+from simplecannet.exception import *
+
 
 class Event:
-    """"""
     _STRUCT = struct.Struct('>Bi8s')
     _EXT_FLAG = 0x80
     _REMOTE_FRAME_FLAG = 0x40
@@ -13,19 +21,19 @@ class Event:
 
     def __init__(self, msg):
         """
-        :param can.Message msg:
-            A Message object.
+            :param can.Message msg:
+                A Message object.
         """
         #: A :class:`can.Message` instance.
         self.msg = msg
 
     def encode(self):
         """
-        package data like this
-        flags | id  | data
-        --------------------
-        1     | 4  |  8
-        :return: 
+            package data like this
+            flags | id  | data
+            --------------------
+            1     | 4  |  8
+            :return:
         """
         flags = 0
         length = len(self.msg.data)
@@ -52,12 +60,12 @@ class Event:
             raise NeedMoreDataError()
 
         msg = Message(timestamp=timestamp,
-                          arbitration_id=arb_id,
-                          extended_id=bool(flags & cls._EXT_FLAG),
-                          is_remote_frame=bool(flags & cls._REMOTE_FRAME_FLAG),
-                          is_error_frame=bool(flags & cls._ERROR_FRAME_FLAG),
-                          dlc=dlc,
-                          data=data[:dlc])
+                      arbitration_id=arb_id,
+                      extended_id=bool(flags & cls._EXT_FLAG),
+                      is_remote_frame=bool(flags & cls._REMOTE_FRAME_FLAG),
+                      is_error_frame=bool(flags & cls._ERROR_FRAME_FLAG),
+                      dlc=dlc,
+                      data=data[:dlc])
         return cls(msg)
 
     def __len__(self):

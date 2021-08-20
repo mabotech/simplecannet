@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding=utf-8
+'''
+Author: HeathKang
+Date: 2017-12-22 16:38:59
+LastEditors: Zhang Hengye
+LastEditTime: 2021-08-20 13:49:30
+'''
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,15 +36,22 @@ class Message(object):
             try:
                 self.data = bytearray(data)
             except TypeError:
-                err = "Couldn't create message from {} ({})".format(data, type(data))
+                err = "Couldn't create message from {} ({})".format(
+                    data, type(data))
                 raise TypeError(err)
 
         if dlc is None:
             self.dlc = len(self.data)
+            assert self.dlc <= 8, "data link count was {} but it must be less than or equal to 8".format(
+                self.dlc)
         else:
             self.dlc = dlc
-
-        assert self.dlc <= 8, "data link count was {} but it must be less than or equal to 8".format(self.dlc)
+            len_data = len(self.data)
+            assert len_data <= 8, "Though dlc is {}, data segment count was {}, data segment must be less than or equal to 8".format(
+                self.dlc, len_data)
+        # 2021-08-20 zhy: https://www.kvaser.com/about-can/can-dictionary/
+        # In the revised CAN standard (from 2003) it can take any value between 0 and 15 inclusive,
+        # however the length of the CAN message is still limited to at most 8 bytes.
 
     def __str__(self):
         field_strings = ["Timestamp: {0:15.6f}".format(self.timestamp)]
